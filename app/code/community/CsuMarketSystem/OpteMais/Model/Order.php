@@ -190,10 +190,6 @@ class CsuMarketSystem_OpteMais_Model_Order
             } catch (Exception $e) {
                 throw new Exception($e->getMessage());
             }
-
-            Mage::log($customer->getId());
-            Mage::log($customer->getEmail());
-
             try {
                 /** @var Mage_Customer_Model_Address $addressCustomer */
                 $addressCustomer = Mage::getModel('customer/address');

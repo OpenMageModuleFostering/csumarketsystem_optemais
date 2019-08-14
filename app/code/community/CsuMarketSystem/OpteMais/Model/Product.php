@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -50,7 +51,9 @@ class CsuMarketSystem_OpteMais_Model_Product
             $categoryIds = implode("/", array_keys($categories));
             $skus = array();
             if ($p->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
-                if(!$p->getSku()) continue;
+                if (!$p->getSku()) {
+                    continue;
+                }
                 $childProducts = isset($this->_productParentChildIs[$p->getId()]) ? $this->_productParentChildIs[$p->getId()] : array();
                 if ($childProducts) {
                     $hasChangedParent = strtotime($p->getUpdatedAt()) >= $fromHours;
@@ -103,7 +106,7 @@ class CsuMarketSystem_OpteMais_Model_Product
                     continue;
                 }
                 $skuSpecification = $this->_getSkuSpecifications($p);
-                if (!$skuSpecification || !$p->getSku()) {
+                if (!$p->getSku()) {
                     continue;
                 }
                 $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($p);
@@ -127,7 +130,7 @@ class CsuMarketSystem_OpteMais_Model_Product
                         'Ean'   => $p->getData($eanAttribute) && $eanAttribute ? $p->getData($eanAttribute) : '',
                         'RefId' => $p->getData($refIdAttribute) && $refIdAttribute ? $p->getData($refIdAttribute) : '',
                     ),
-                    'EspecificacaoSku' => $this->_getSkuSpecifications($p),
+                    'EspecificacaoSku' => $skuSpecification,
                     'Imagens'          => $this->_getImages($p)
                 );
             }
@@ -160,7 +163,7 @@ class CsuMarketSystem_OpteMais_Model_Product
     public function getAvailabilityProducts($currentPage = 0)
     {
         $items = array();
-        $collection = $this->_getProductCollection($currentPage,true);
+        $collection = $this->_getProductCollection($currentPage, true);
         /** @var $p Mage_Catalog_Model_Product */
         foreach ($collection as $p) {
             if ($p->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
@@ -190,7 +193,8 @@ class CsuMarketSystem_OpteMais_Model_Product
         return $result;
     }
 
-    private function _getAvailabilityDataProducts($product) {
+    private function _getAvailabilityDataProducts($product)
+    {
         $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
         $stockQty = intval($stockItem->getQty());
         if (Mage::getStoreConfigFlag('optemais/config_product/discount_min_qty')) {
@@ -232,32 +236,36 @@ class CsuMarketSystem_OpteMais_Model_Product
 
     /**
      * @param $currentPage integer
-     * @param $onlyStock boolean
+     * @param $onlyStock   boolean
      *
      * @return Mage_Catalog_Model_Resource_Product_Collection
      */
-    private function _getProductCollection($currentPage = 0, $onlyStock = false) {
+    private function _getProductCollection($currentPage = 0, $onlyStock = false)
+    {
         if (is_null($this->_productCollection)) {
-            $this->_prepareProductCollection($currentPage,$onlyStock);
+            $this->_prepareProductCollection($currentPage, $onlyStock);
         }
         return $this->_productCollection;
     }
 
-    private function _prepareProductCollection($currentPage = 0, $onlyStock = false) {
+    private function _prepareProductCollection($currentPage = 0, $onlyStock = false)
+    {
         /** @var $collection Mage_Catalog_Model_Resource_Product_Collection */
         $collection = Mage::getModel('catalog/product')->getCollection();
         $collection->joinField(
             'category_id', 'catalog/category_product', 'category_id',
             'product_id = entity_id', null, 'inner'
         );
-        if(!$onlyStock) $collection->addPriceData();
+        if (!$onlyStock) {
+            $collection->addPriceData();
+        }
         $collection->addAttributeToSelect('*')->addCategoryIds();
         $collection->addAttributeToFilter(
             'type_id', array('in' => array(Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE,
                 Mage_Catalog_Model_Product_Type::TYPE_SIMPLE))
         );
         $collection->addAttributeToFilter('status', Mage_Catalog_Model_Product_Status::STATUS_ENABLED);
-        if($this->_getProductChildren()) {
+        if ($this->_getProductChildren()) {
             $collection->addAttributeToFilter('entity_id', array('nin' => $this->_getProductChildren()));
         }
         if (Mage::getStoreConfigFlag('optemais/config_product/ignore_invisible')) {
@@ -290,10 +298,13 @@ class CsuMarketSystem_OpteMais_Model_Product
         return $children;
     }
 
-    private function _getParentId($childId) {
+    private function _getParentId($childId)
+    {
         $this->_getProductChildren();
-        foreach($this->_productParentChildIs as $parentId => $childIds) {
-            if(in_array($childId,$childIds)) return $parentId;
+        foreach ($this->_productParentChildIs as $parentId => $childIds) {
+            if (in_array($childId, $childIds)) {
+                return $parentId;
+            }
         }
         return false;
     }
@@ -328,7 +339,8 @@ class CsuMarketSystem_OpteMais_Model_Product
         }
     }
 
-    private function _getParentCategories(Mage_Catalog_Model_Product $product) {
+    private function _getParentCategories(Mage_Catalog_Model_Product $product)
+    {
         $tree = array();
         $categoryCollection = $this->_getCategoryCollection();
         if (!$categoryCollection) {
@@ -373,7 +385,8 @@ class CsuMarketSystem_OpteMais_Model_Product
     }
 
 
-    private function _getImages(Mage_Catalog_Model_Product $product, $parentProduct = null, $useParentImages = false) {
+    private function _getImages(Mage_Catalog_Model_Product $product, $parentProduct = null, $useParentImages = false)
+    {
         /** @var Mage_Catalog_Model_Product $product */
         if (!$product->getMediaGallery('images')) {
             $product->load('media_gallery');
@@ -386,7 +399,9 @@ class CsuMarketSystem_OpteMais_Model_Product
         }
         $items = array();
         foreach ($images as $image) {
-            if($image['disabled'] == "1") continue;
+            if ($image['disabled'] == "1") {
+                continue;
+            }
             $items[] = array(
                 'ImagemUrl'     => $product->getMediaConfig()->getMediaUrl($image['file']),
                 'ImagemNome'    => basename($image['file']),
@@ -412,14 +427,27 @@ class CsuMarketSystem_OpteMais_Model_Product
         return $items;
     }
 
-    private function _getProductSpecifications(Mage_Catalog_Model_Product $product) {
+    private function _getProductSpecifications(Mage_Catalog_Model_Product $product)
+    {
         $items = array();
         if ($attributes = Mage::getStoreConfig('optemais/config_attribute/product_specifications')) {
             $attributes = explode(",", $attributes);
             foreach ($attributes as $attributeCode) {
-                $attributeValue = $product->getResource()->getAttribute($attributeCode)->getFrontend()->getValue($product);
+                $inputType = $product->getResource()
+                    ->getAttribute($attributeCode)->getFrontend()->getInputType();
+                if (in_array($inputType, array('select', 'multiselect'))) {
+                    $attributeValue = $product->getResource()
+                        ->getAttribute($attributeCode)->getSource()
+                        ->getOptionText($product->getData($attributeCode));
+                } else {
+                    $attributeValue = $product->getResource()
+                        ->getAttribute($attributeCode)->getFrontend()
+                        ->getValue($product);
+                }
+                if($attributeValue === false) continue;
                 $attributeLabel = $product->getResource()->getAttribute($attributeCode)->getFrontend()->getLabel();
                 $attributeId = $product->getResource()->getAttribute($attributeCode)->getId();
+                if(!is_array($attributeValue)) $attributeValue = array($attributeValue);
                 $items[] = array(
                     'IdEspecificacaoProduto'    => $attributeId,
                     'NomeEspecificacaoProduto'  => $attributeLabel,
@@ -430,7 +458,8 @@ class CsuMarketSystem_OpteMais_Model_Product
         return $items;
     }
 
-    private function _getSkuSpecifications(Mage_Catalog_Model_Product $product) {
+    private function _getSkuSpecifications(Mage_Catalog_Model_Product $product)
+    {
         $items = array();
         $attributes = array();
         if ($colorAttribute = Mage::getStoreConfig('optemais/config_attribute/attribute_product_color')) {
@@ -460,7 +489,8 @@ class CsuMarketSystem_OpteMais_Model_Product
         return $items;
     }
 
-    public function getProductBySku($sku) {
+    public function getProductBySku($sku)
+    {
         try {
             /** @var Mage_Catalog_Model_Product $product */
             $product = Mage::getModel('catalog/product');
@@ -468,11 +498,11 @@ class CsuMarketSystem_OpteMais_Model_Product
             if ($product->getId()) {
                 $price = $product->getPrice();
                 $finalPrice = $product->getFinalPrice();
-                if($useParentPrice = Mage::getStoreConfigFlag('optemais/config_product/use_parent_price')) {
-                    if($parentId = $this->_getParentId($product->getId())) {
+                if ($useParentPrice = Mage::getStoreConfigFlag('optemais/config_product/use_parent_price')) {
+                    if ($parentId = $this->_getParentId($product->getId())) {
                         /** @var Mage_Catalog_Model_Product $parent */
                         $parent = Mage::getModel('catalog/product')->load($parentId);
-                        if($parent->getId()) {
+                        if ($parent->getId()) {
                             $price = $parent->getPrice();
                             $finalPrice = $parent->getFinalPrice();
                         }
