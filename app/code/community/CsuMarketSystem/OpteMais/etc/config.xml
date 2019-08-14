@@ -16,7 +16,7 @@
 <config>
     <modules>
         <CsuMarketSystem_OpteMais>
-            <version>1.1.0</version>
+            <version>1.2.0</version>
         </CsuMarketSystem_OpteMais>
     </modules>
     <global>
@@ -161,6 +161,7 @@
                 <items_per_page>200</items_per_page>
                 <ignore_invisible>1</ignore_invisible>
                 <discount_min_qty>1</discount_min_qty>
+                <use_parent_price>0</use_parent_price>
             </config_product>
             <config_shipping>
                 <delivery_time_default>7</delivery_time_default>

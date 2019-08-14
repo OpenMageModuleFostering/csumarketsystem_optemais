@@ -74,10 +74,13 @@ class CsuMarketSystem_OpteMais_Model_Product
                         if ($stockQty < 0) {
                             $stockQty = 0;
                         }
+                        $useParentPrice = Mage::getStoreConfigFlag('optemais/config_product/use_parent_price');
+                        $price = $useParentPrice ? $p->getPrice() : $child->getPrice();
+                        $finalPrice = $useParentPrice ? $p->getFinalPrice() : $child->getFinalPrice();
                         $skus[] = array(
                             'CodSku'           => $child->getSku(),
-                            'PrecoDe'          => number_format((float)$child->getPrice(), 2, '.', ''),
-                            'PrecoPor'         => number_format((float)$child->getFinalPrice(), 2, '.', ''),
+                            'PrecoDe'          => number_format((float)$price, 2, '.', ''),
+                            'PrecoPor'         => number_format((float)$finalPrice, 2, '.', ''),
                             'Estoque'          => intval($stockQty),
                             'Ativo'            => $child->getStatus() == Mage_Catalog_Model_Product_Status::STATUS_ENABLED ? true : false,
                             'Cor'              => $child->getData($colorAttribute) && $colorAttribute ? $child->getAttributeText($colorAttribute) : '',
