@@ -13,7 +13,6 @@
  */
 class CsuMarketSystem_OpteMais_Model_Product
 {
-
     const MODE_FULL = 'full';
     const MODE_PARTIAL = 'partial';
     const IMAGE_FULL = 'Grande';
@@ -258,7 +257,9 @@ class CsuMarketSystem_OpteMais_Model_Product
                 Mage_Catalog_Model_Product_Type::TYPE_SIMPLE))
         );
         $collection->addAttributeToFilter('status', Mage_Catalog_Model_Product_Status::STATUS_ENABLED);
-        $collection->addAttributeToFilter('entity_id', array('nin' => $this->_getProductChildren()));
+        if($this->_getProductChildren()) {
+            $collection->addAttributeToFilter('entity_id', array('nin' => $this->_getProductChildren()));
+        }
         if (Mage::getStoreConfigFlag('optemais/config_product/ignore_invisible')) {
             $collection->addAttributeToFilter('visibility', array('neq' => Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE));
         }
