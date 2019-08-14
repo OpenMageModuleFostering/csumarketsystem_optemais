@@ -1,0 +1,16 @@
+{
+    "name": "OpenMageModuleFostering/CsuMarketSystem_OpteMais",
+    "type": "magento-module",
+    "license": "Open-Software-License-(OSL-3.0)",
+    "homepage": "",
+    "description": "Extensão oficial para integração com o Marketplace OPTe+.",
+    "authors": [
+    {
+        "name": "csumarketsystem",
+        "email": "integracaomagento@csu.com.br"
+    }
+],
+    "suggest": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}
