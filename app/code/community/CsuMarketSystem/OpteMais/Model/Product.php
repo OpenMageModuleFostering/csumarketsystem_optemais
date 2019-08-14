@@ -271,7 +271,7 @@ class CsuMarketSystem_OpteMais_Model_Product
         $this->_productCollection = $collection;
     }
 
-    public function _getProductChildren()
+    private function _getProductChildren()
     {
         /** @var $collection Mage_Catalog_Model_Resource_Product_Collection */
         $collection = Mage::getModel('catalog/product')->getCollection();
@@ -287,6 +287,14 @@ class CsuMarketSystem_OpteMais_Model_Product
         }
         unset($collection);
         return $children;
+    }
+
+    private function _getParentId($childId) {
+        $this->_getProductChildren();
+        foreach($this->_productParentChildIs as $parentId => $childIds) {
+            if(in_array($childId,$childIds)) return $parentId;
+        }
+        return false;
     }
 
     /**
@@ -457,6 +465,18 @@ class CsuMarketSystem_OpteMais_Model_Product
             $product = Mage::getModel('catalog/product');
             $product->load($product->getIdBySku($sku));
             if ($product->getId()) {
+                $price = $product->getPrice();
+                $finalPrice = $product->getFinalPrice();
+                if($useParentPrice = Mage::getStoreConfigFlag('optemais/config_product/use_parent_price')) {
+                    if($parentId = $this->_getParentId($product->getId())) {
+                        /** @var Mage_Catalog_Model_Product $parent */
+                        $parent = Mage::getModel('catalog/product')->load($parentId);
+                        if($parent->getId()) {
+                            $price = $parent->getPrice();
+                            $finalPrice = $parent->getFinalPrice();
+                        }
+                    }
+                }
                 $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
                 $stockQty = intval($stockItem->getQty());
                 if (Mage::getStoreConfigFlag('optemais/config_product/discount_min_qty')) {
@@ -467,8 +487,8 @@ class CsuMarketSystem_OpteMais_Model_Product
                 }
                 $data = array(
                     'Sku'               => $product->getSku(),
-                    'PrecoDe'           => number_format((float)$product->getPrice(), 2, '.', ''),
-                    'PrecoPor'          => number_format((float)$product->getFinalPrice(), 2, '.', ''),
+                    'PrecoDe'           => number_format((float)$price, 2, '.', ''),
+                    'PrecoPor'          => number_format((float)$finalPrice, 2, '.', ''),
                     'QuantidadeEstoque' => $stockQty,
                     'FlagDisponivel'    => $stockQty > 0 && $product->getStatus() == Mage_Catalog_Model_Product_Status::STATUS_ENABLED,
                     'Nome'              => $product->getName(),
