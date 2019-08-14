@@ -51,6 +51,7 @@ class CsuMarketSystem_OpteMais_Model_Product
             $categoryIds = implode("/", array_keys($categories));
             $skus = array();
             if ($p->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
+                if(!$p->getSku()) continue;
                 $childProducts = isset($this->_productParentChildIs[$p->getId()]) ? $this->_productParentChildIs[$p->getId()] : array();
                 if ($childProducts) {
                     $hasChangedParent = strtotime($p->getUpdatedAt()) >= $fromHours;
@@ -62,7 +63,7 @@ class CsuMarketSystem_OpteMais_Model_Product
                             $hasChangedChild = true;
                         }
                         $skuSpecification = $this->_getSkuSpecifications($child);
-                        if (!$skuSpecification) {
+                        if (!$skuSpecification || !$child->getSku()) {
                             continue;
                         }
                         /** @var $stockItem Mage_CatalogInventory_Model_Stock_Item */
@@ -103,7 +104,7 @@ class CsuMarketSystem_OpteMais_Model_Product
                     continue;
                 }
                 $skuSpecification = $this->_getSkuSpecifications($p);
-                if (!$skuSpecification) {
+                if (!$skuSpecification || !$p->getSku()) {
                     continue;
                 }
                 $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($p);
