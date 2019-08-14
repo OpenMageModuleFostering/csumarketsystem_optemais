@@ -18,14 +18,9 @@ class CsuMarketSystem_OpteMais_Adminhtml_Optemais_CampaignController extends Mag
     {
         return Mage::getSingleton('admin/session')->isAllowed('admin/promo/optemais_campaign');
     }
-
+    
     public function addItemsAction()
     {
-        if (!$this->_validateProducts($this->getRequest()->getParam('product'))) {
-            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('optemais')->__('Produtos inválidos'));
-            $this->_redirect('adminhtml/catalog_product/index');
-            return false;
-        }
         $products = $this->getRequest()->getParam('product');
         if (!is_array($products)) {
             Mage::getSingleton('adminhtml/session')->addError(Mage::helper('optemais')->__('Selecione pelo menos um produto'));
@@ -33,12 +28,13 @@ class CsuMarketSystem_OpteMais_Adminhtml_Optemais_CampaignController extends Mag
             return false;
         } else {
             try {
-                foreach ($products as $productId) {
-                    /** @var Mage_Catalog_Model_Product $product */
-                    $product = Mage::getModel('catalog/product')->load($productId);
-                    if ($product->getTypeId() != Mage_Catalog_Model_Product_Type::TYPE_SIMPLE) {
-                        throw new Exception(Mage::helper('optemais')->__('Utilize somente [Produtos Simples] para Campanhas'));
-                    }
+                /** @var Mage_Catalog_Model_Resource_Product_Collection $productCollection */
+                $productCollection = Mage::getModel('catalog/product')->getCollection();
+                $productCollection->addIdFilter($products);
+                $productCollection->addAttributeToFilter('type_id','simple');
+                $count = $productCollection->getSize();
+                if($count != count($products)) {
+                    throw new Exception(Mage::helper('optemais')->__('Utilize somente [Produtos Simples] para Campanhas'));
                 }
             } catch (Exception $e) {
                 Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
@@ -46,10 +42,9 @@ class CsuMarketSystem_OpteMais_Adminhtml_Optemais_CampaignController extends Mag
                 return false;
             }
         }
-
         $this->loadLayout()
             ->_setActiveMenu('promo')
-            ->_addBreadcrumb(Mage::helper('optemais')->__('Adicionar itens à Campanha OPTe+'), Mage::helper('optemais')->__('Adicionar Itens à Campanha OPTe+'))
+            ->_addBreadcrumb(Mage::helper('optemais')->__('Adicionar itens à Campanha OPTe+'), Mage::helper('optemais')->__('Adicionar itens à Campanha OPTe+'))
             ->_addContent($this->getLayout()->createBlock('optemais/adminhtml_campaign_item'))
             ->renderLayout();
     }
@@ -61,8 +56,12 @@ class CsuMarketSystem_OpteMais_Adminhtml_Optemais_CampaignController extends Mag
         if ($this->getRequest()->getParam('action') == CsuMarketSystem_OpteMais_Model_Source_Campaign_Actions::ACTION_EXISTING) {
             try {
                 $campaignId = $this->getRequest()->getParam('campaign');
-                $campaign->addItemToCampaign($this->getRequest(), $campaignId);
-                Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('optemais')->__('Itens adicionados à campanha com sucesso'));
+                if($campaign->validateProducts($this->getRequest(),$campaignId)) {
+                    $campaign->addItemToCampaign($this->getRequest(), $campaignId);
+                    Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('optemais')->__('Itens adicionados à campanha com sucesso'));
+                } else {
+                    Mage::getSingleton('adminhtml/session')->addError(Mage::helper('optemais')->__('Alguns dos itens já existem nessa campanha'));
+                }
             } catch (Exception $e) {
                 Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
             }
@@ -266,11 +265,6 @@ class CsuMarketSystem_OpteMais_Adminhtml_Optemais_CampaignController extends Mag
         $response->setBody($content);
         $response->sendResponse();
         die;
-    }
-
-    private function _validateProducts($products)
-    {
-        return true;
     }
 
 }

@@ -96,6 +96,16 @@ class CsuMarketSystem_OpteMais_Model_Campaign extends CsuMarketSystem_OpteMais_M
         return false;
     }
 
+    public function validateProducts(Mage_Core_Controller_Request_Http $request, $campaignId)
+    {
+        $products = explode(',', $request->getParam('products'));
+        /** @var CsuMarketSystem_OpteMais_Model_Resource_Campaign_Item_Collection $campaignCollection */
+        $campaignCollection = Mage::getModel('optemais/campaign_item')->getCollection();
+        $campaignCollection->addFieldToFilter('product_id',array('in'=>$products));
+        $campaignCollection->addFieldToFilter('campaign_id',$campaignId);
+        return !$campaignCollection->getSize();
+    }
+
     public function addItemToCampaign(Mage_Core_Controller_Request_Http $request, $campaignId)
     {
         $products = explode(',', $request->getParam('products'));
@@ -110,8 +120,9 @@ class CsuMarketSystem_OpteMais_Model_Campaign extends CsuMarketSystem_OpteMais_M
                 '{{table}}.stock_id=1',
                 'left'
             );
+        $campaignItem = Mage::getModel('optemais/campaign_item');
+        /** @var Mage_Catalog_Model_Product $product */
         foreach ($productCollection as $product) {
-            $campaignItem = Mage::getModel('optemais/campaign_item');
             $campaignItem->setId(null);
             $campaignItem->setCampaignId($campaignId);
             $campaignItem->setProductId($product->getId());

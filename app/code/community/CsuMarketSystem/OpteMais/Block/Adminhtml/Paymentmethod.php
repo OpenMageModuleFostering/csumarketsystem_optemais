@@ -56,7 +56,7 @@ class CsuMarketSystem_OpteMais_Block_Adminhtml_Paymentmethod extends Mage_Adminh
         $html .= '<p class="note">Número maximo de parcelas permitida para o Método de Pagamento (Selecione somente quando houver parcelamento).</p>';
 
 
-        $html .= '<label>' . $this->__('Júros aplicado às parcelas') . '</label>';
+        $html .= '<label>' . $this->__('Juros aplicado às parcelas') . '</label>';
         $html .= '<input class="input-text" type="text" name="' . $this->getElement()->getName() . '[interest][]" value="' . $this->_getValue('interest/' . $i) . '" ' . $this->_getDisabled() . ' />';
         $html .= '<p class="note">Júros que será aplicado ao parcelamento (Preencha somente quando houver parcelamento e júros). Exemplo: 1.9%</p>';
 
