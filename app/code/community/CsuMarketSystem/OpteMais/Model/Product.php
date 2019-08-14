@@ -70,9 +70,12 @@ class CsuMarketSystem_OpteMais_Model_Product
                         }
                         /** @var $stockItem Mage_CatalogInventory_Model_Stock_Item */
                         $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($child);
-                        $stockQty = intval($stockItem->getQty());
-                        if (Mage::getStoreConfigFlag('optemais/config_product/discount_min_qty')) {
-                            $stockQty -= intval($stockItem->getMinQty());
+                        $stockQty = 0;
+                        if($stockItem->getIsInStock()) {
+                            $stockQty = intval($stockItem->getQty());
+                            if (Mage::getStoreConfigFlag('optemais/config_product/discount_min_qty')) {
+                                $stockQty -= intval($stockItem->getMinQty());
+                            }
                         }
                         if ($stockQty < 0) {
                             $stockQty = 0;
@@ -110,9 +113,12 @@ class CsuMarketSystem_OpteMais_Model_Product
                     continue;
                 }
                 $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($p);
-                $stockQty = intval($stockItem->getQty());
-                if (Mage::getStoreConfigFlag('optemais/config_product/discount_min_qty')) {
-                    $stockQty -= intval($stockItem->getMinQty());
+                $stockQty = 0;
+                if($stockItem->getIsInStock()) {
+                    $stockQty = intval($stockItem->getQty());
+                    if (Mage::getStoreConfigFlag('optemais/config_product/discount_min_qty')) {
+                        $stockQty -= intval($stockItem->getMinQty());
+                    }
                 }
                 if ($stockQty < 0) {
                     $stockQty = 0;
@@ -195,10 +201,14 @@ class CsuMarketSystem_OpteMais_Model_Product
 
     private function _getAvailabilityDataProducts($product)
     {
+        /** @var $stockItem Mage_CatalogInventory_Model_Stock_Item */
         $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
-        $stockQty = intval($stockItem->getQty());
-        if (Mage::getStoreConfigFlag('optemais/config_product/discount_min_qty')) {
-            $stockQty -= intval($stockItem->getMinQty());
+        $stockQty = 0;
+        if($stockItem->getIsInStock()) {
+            $stockQty = intval($stockItem->getQty());
+            if (Mage::getStoreConfigFlag('optemais/config_product/discount_min_qty')) {
+                $stockQty -= intval($stockItem->getMinQty());
+            }
         }
         if ($stockQty < 0) {
             $stockQty = 0;
@@ -508,10 +518,14 @@ class CsuMarketSystem_OpteMais_Model_Product
                         }
                     }
                 }
+                /** @var $stockItem Mage_CatalogInventory_Model_Stock_Item */
                 $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
-                $stockQty = intval($stockItem->getQty());
-                if (Mage::getStoreConfigFlag('optemais/config_product/discount_min_qty')) {
-                    $stockQty -= intval($stockItem->getMinQty());
+                $stockQty = 0;
+                if($stockItem->getIsInStock()) {
+                    $stockQty = intval($stockItem->getQty());
+                    if (Mage::getStoreConfigFlag('optemais/config_product/discount_min_qty')) {
+                        $stockQty -= intval($stockItem->getMinQty());
+                    }
                 }
                 if ($stockQty < 0) {
                     $stockQty = 0;

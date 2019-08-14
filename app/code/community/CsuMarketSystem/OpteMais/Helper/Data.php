@@ -22,7 +22,7 @@ class CsuMarketSystem_OpteMais_Helper_Data extends Mage_Core_Helper_Abstract
     const MESSAGE_NOT_FOUND = 'Recurso não encontrado: %s';
     const STATUS_CODE_NOT_FOUND = 404;
 
-    const MESSAGE_NOT_AUTHORIZED = 'Usuario inválid.';
+    const MESSAGE_NOT_AUTHORIZED = 'Usuário inválido.';
     const STATUS_CODE_NOT_AUTHORIZED = 401;
 
     const MESSAGE_INVALID = 'Parâmetros inválidos: %s';

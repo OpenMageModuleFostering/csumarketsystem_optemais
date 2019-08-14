@@ -81,10 +81,17 @@ class CsuMarketSystem_OpteMais_Model_Shipping
                                                 $price = $freightDiscount > 0 && $price > 0
                                                     ? $price - ($price * ($freightDiscount / 100))
                                                     : $price;
+                                                $stockQty = 0;
+                                                if($stockItem->getIsInStock()) {
+                                                    $stockQty = intval($stockItem->getQty());
+                                                    if (Mage::getStoreConfigFlag('optemais/config_product/discount_min_qty')) {
+                                                        $stockQty -= intval($stockItem->getMinQty());
+                                                    }
+                                                }
                                                 $itemsRate['Sku'] = $product->getSku();
                                                 $itemsRate['ValorFrete'] = $price;
-                                                $itemsRate['QuantidadeEstoque'] = intval($stockItem->getQty());
-                                                $itemsRate['FlagDisponivel'] = $stockItem->getQty() > 0;
+                                                $itemsRate['QuantidadeEstoque'] = $stockQty;
+                                                $itemsRate['FlagDisponivel'] = $stockQty > 0;
                                                 $itemsRate['TempoEntrega'] = intval($deliveryTime);
                                                 $itemsRate['Mensagem'] = $rate->getErrorMessage();
                                                 if ($biggestRateDeliveryTime < $deliveryTime) {
