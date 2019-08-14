@@ -66,8 +66,8 @@ class CsuMarketSystem_OpteMais_Model_Shipping
                                 if (is_array($result)) {
                                     foreach ($result as $rates) {
                                         foreach ($rates as $rate) {
-                                            $deliveryTime = $rate->getData($configDeliveryTimeVariable)
-                                                ? $rate->getData($configDeliveryTimeVariable)
+                                            $deliveryTime = Mage::registry($rate->getCode() .'_' . $configDeliveryTimeVariable)
+                                                ? Mage::registry($rate->getCode() .'_' . $configDeliveryTimeVariable)
                                                 : $configDeliveryTimeDefault;
                                             $skip = true;
                                             if ($configPriceType == CsuMarketSystem_OpteMais_Model_Source_Shipping_Pricetype::BIGGEST_PRICE && $price < $rate->getPrice()) {
